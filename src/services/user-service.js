@@ -1,4 +1,5 @@
 const UserRepository = require("../repository/user-repository");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { JWT_KEY } = require("../config/serverConfig");
 
@@ -7,6 +8,10 @@ const userRepository = new UserRepository();
 class UserService {
   async createUser(data) {
     try {
+      const password = data.password;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      data.password = hashedPassword;
+
       const user = await userRepository.createUser(data);
       return user;
     } catch (error) {

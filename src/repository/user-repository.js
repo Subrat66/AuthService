@@ -1,12 +1,8 @@
 const { User } = require("../models/index");
-const bcrypt = require("bcrypt");
 
 class UserRepository {
   async createUser(data) {
     try {
-      const password = data.password;
-      const hashedPassword = await bcrypt.hash(password, 10);
-      data.password = hashedPassword;
       const user = await User.create(data);
       return {
         id: user.id,
