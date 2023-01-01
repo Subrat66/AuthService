@@ -78,7 +78,7 @@ class UserService {
   createToken(user) {
     try {
       const token = jwt.sign(user, JWT_KEY, {
-        expiresIn: "1h",
+        expiresIn: "1d",
       });
       return token;
     } catch (error) {
