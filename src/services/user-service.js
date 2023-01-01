@@ -20,6 +20,28 @@ class UserService {
     }
   }
 
+  async signIn(email, plainPassword) {
+    try {
+      const user = await userRepository.getByEmail(email);
+
+      const isPasswordMatching = await this.checkPassword(
+        plainPassword,
+        user.password
+      );
+
+      if (!isPasswordMatching) {
+        console.log("Incorrect password");
+        throw { err: "Incorrect password" };
+      }
+
+      const token = this.createToken({ email: user.email, id: user.id });
+      return token;
+    } catch (error) {
+      console.log("Something went wrong in the sign in process");
+      throw error;
+    }
+  }
+
   async deleteUser(userId) {
     try {
       const response = await userRepository.deleteUser(userId);
@@ -37,6 +59,19 @@ class UserService {
     } catch (error) {
       console.log("Something went wrong at the service layer");
       throw { error };
+    }
+  }
+
+  async checkPassword(userInputPlainPassword, encryptedPassword) {
+    try {
+      const result = await bcrypt.compare(
+        userInputPlainPassword,
+        encryptedPassword
+      );
+      return result;
+    } catch (error) {
+      console.log("Password not matched");
+      throw error;
     }
   }
 
