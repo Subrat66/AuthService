@@ -9,7 +9,7 @@ class UserService {
   async createUser(data) {
     try {
       const password = data.password;
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 7);
       data.password = hashedPassword;
 
       const user = await userRepository.createUser(data);
@@ -52,9 +52,9 @@ class UserService {
     }
   }
 
-  async getUser(userId) {
+  async getUserById(userId) {
     try {
-      const user = await userRepository.getUser(userId);
+      const user = await userRepository.getUserById(userId);
       return user;
     } catch (error) {
       console.log("Something went wrong at the service layer");
@@ -75,6 +75,24 @@ class UserService {
     }
   }
 
+  async isAuthenticated(token) {
+    try {
+      const response = this.verifyToken(token);
+      if (!response) {
+        throw { error: "Invalid token" }; // response = { email: '--', id: -, iat: --, exp: -- }
+      }
+
+      const user = await userRepository.getUser(response.id);
+      if (!user) {
+        throw { error: "User does not exist for this corresponding token" };
+      }
+      return user.id;
+    } catch (error) {
+      console.log("Something went wrong in the auth process");
+      throw error;
+    }
+  }
+
   createToken(user) {
     try {
       const token = jwt.sign(user, JWT_KEY, {
@@ -90,6 +108,16 @@ class UserService {
   verifyToken(token) {
     try {
       const response = jwt.verify(token, JWT_KEY);
+      return response;
+    } catch (error) {
+      console.log("Something went wrong in token validation", error);
+      throw error;
+    }
+  }
+
+  async isAdmin(userId) {
+    try {
+      const response = await userRepository.isAdmin(userId);
       return response;
     } catch (error) {
       console.log("Something went wrong in token validation", error);

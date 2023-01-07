@@ -4,7 +4,9 @@ const { PORT } = require("./config/serverConfig");
 
 const ApiRoutes = require("./routes/index");
 // const UserService = require("./services/user-service");
+const { User, Role } = require("./models/index");
 
+const db = require("./models/index");
 const app = express();
 
 const setupAndStartServer = () => {
@@ -13,8 +15,11 @@ const setupAndStartServer = () => {
 
   app.use("/api", ApiRoutes);
 
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`Server started at port ${PORT}`);
+    if (process.env.DB_SYNC) {
+      db.sequelize.sync({ alter: true });
+    }
 
     // const userService = new UserService();
     // const newToken = userService.createToken({

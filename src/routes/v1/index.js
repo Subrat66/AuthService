@@ -5,16 +5,27 @@ const { AuthRequestValidators } = require("../../middlewares/index");
 const UserController = require("../../controllers/user-controller");
 
 router.post(
-  "/user/signup",
+  "/signup",
   AuthRequestValidators.validateUserAuth,
   UserController.create
 );
+
 router.post(
-  "/user/signin",
+  "/signin",
   AuthRequestValidators.validateUserAuth,
   UserController.signIn
 );
+
 router.delete("/user/:id", UserController.destroy);
-router.get("/user/:id", UserController.get);
+
+router.get("/user/:id", UserController.getById);
+
+router.get("/user/isAuthenticated", UserController.isAuthenticated);
+
+router.get(
+  "/isAdmin",
+  AuthRequestValidators.validateIsAdminRequest,
+  UserController.isAdmin
+);
 
 module.exports = router;

@@ -46,10 +46,10 @@ const destroy = async (req, res) => {
   }
 };
 
-const get = async (req, res) => {
+const getById = async (req, res) => {
   try {
     const userId = req.params.id;
-    const user = await userService.getUser(userId);
+    const user = await userService.getUserById(userId);
 
     return res.status(201).json({
       data: user,
@@ -86,9 +86,51 @@ const signIn = async (req, res) => {
   }
 };
 
+const isAuthenticated = async (req, res) => {
+  try {
+    const token = req.headers["x-access-token"];
+    const response = await userService.verifyToken(token);
+
+    return res.status(200).json({
+      data: response,
+      success: true,
+      message: "User is authenticated and token is valid",
+      err: {},
+    });
+  } catch (error) {
+    return res.status(500).json({
+      data: {},
+      success: false,
+      message: "Not able to fetch the user",
+      err: error,
+    });
+  }
+};
+
+const isAdmin = async (req, res) => {
+  try {
+    const response = await userService.isAdmin(req.body.id);
+    return res.status(200).json({
+      data: response,
+      success: true,
+      message: "Successfully fetched whether user is authenticated or not",
+      err: {},
+    });
+  } catch (error) {
+    return res.status(500).json({
+      data: {},
+      success: false,
+      message: "Something went wrong",
+      err: error,
+    });
+  }
+};
+
 module.exports = {
   create,
   destroy,
-  get,
+  getById,
   signIn,
+  isAuthenticated,
+  isAdmin,
 };
